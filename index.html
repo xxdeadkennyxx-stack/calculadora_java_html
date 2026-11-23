@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Enteros 5 Dígitos</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #f4f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: #ffffff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h1 {
+            font-size: 1.4rem;
+            margin-top: 0;
+            color: #1e293b;
+            text-align: center;
+        }
+        .campo {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            color: #334155;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 0.65rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #2563eb;
+            color: white;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+        button:hover {
+            background-color: #1d4ed8;
+        }
+        .resultado {
+            margin-top: 1.25rem;
+            padding: 0.9rem;
+            border-radius: 8px;
+            background-color: #f1f5f9;
+            color: #0f172a;
+            word-break: break-all;
+            font-weight: 600;
+            text-align: center;
+        }
+        .error {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>Calculadora (-99999 a 99999)</h1>
+    <form id="calcForm">
+        <div class="campo">
+            <label for="num1">Primer número entero:</label>
+            <input type="number" id="num1" min="-99999" max="99999" step="1" required placeholder="Ej. 12500">
+        </div>
+        <div class="campo">
+            <label for="operacion">Operación:</label>
+            <select id="operacion" required>
+                <option value="suma">Suma (+)</option>
+                <option value="resta">Resta (-)</option>
+                <option value="multiplicacion">Multiplicación (×)</option>
+                <option value="potencia">Potencia (^)</option>
+            </select>
+        </div>
+        <div class="campo">
+            <label for="num2">Segundo número entero:</label>
+            <input type="number" id="num2" min="-99999" max="99999" step="1" required placeholder="Ej. -45">
+        </div>
+        <button type="submit">Calcular</button>
+    </form>
+    <div id="salida" class="resultado">Introduce dos enteros de hasta 5 dígitos</div>
+</div>
+
+<script>
+    document.getElementById("calcForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const num1 = document.getElementById("num1").value.trim();
+        const num2 = document.getElementById("num2").value.trim();
+        const operacion = document.getElementById("operacion").value;
+        const salida = document.getElementById("salida");
+
+        const regexCincoDigitos = /^-?\d{1,5}$/;
+        if (!regexCincoDigitos.test(num1) || !regexCincoDigitos.test(num2)) {
+            salida.textContent = "Error: Solo se permiten números enteros entre -99999 y 99999.";
+            salida.className = "resultado error";
+            return;
+        }
+
+        try {
+            const url = `/calcular?num1=${encodeURIComponent(num1)}&num2=${encodeURIComponent(num2)}&operacion=${encodeURIComponent(operacion)}`;
+            const respuesta = await fetch(url);
+            const datos = await respuesta.json();
+
+            if (datos.ok) {
+                salida.textContent = "Resultado: " + datos.resultado;
+                salida.className = "resultado";
+            } else {
+                salida.textContent = "Error: " + datos.error;
+                salida.className = "resultado error";
+            }
+        } catch (err) {
+            salida.textContent = "Error de conexión con el servidor Java.";
+            salida.className = "resultado error";
+        }
+    });
+</script>
+</body>
+</html>
